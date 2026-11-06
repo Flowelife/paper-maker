@@ -1,0 +1,76 @@
+{
+  "schema": "paper-maker/1",
+  "meta": {
+    "title": "基于结构化数据的论文自动排版方法研究",
+    "course": "课程设计",
+    "author": "张 三",
+    "student_id": "2024000001",
+    "grade": "2024 级",
+    "college": "理 学 院",
+    "major": "数据科学与大数据技术",
+    "advisor": "李 四",
+    "date": "2026年10月",
+    "header": "《课程设计》 论文"
+  },
+  "cover": {
+    "mode": "template"
+  },
+  "abstract": {
+    "zh": {
+      "paragraphs": [
+        "本文研究把结构化数据稳定转换为符合课程模板的论文文档的方法。程序以 JSON 为唯一输入，依次生成封面、摘要、目录、正文、参考文献与附录，并把公式、图表与分节页码交给文档格式本身表达，而不是依赖人工微调。实验表明，同一份输入在多次构建中产生相同的版式，正文的变量 $x_i$ 与公式均以标准公式对象插入。"
+      ],
+      "keywords": ["论文排版", "结构化数据", "文档自动化", "OOXML"]
+    },
+    "en": {
+      "paragraphs": [
+        "This paper studies a deterministic pipeline that turns structured JSON into a thesis document that follows the course template. The program writes the cover, abstract, table of contents, body, references and appendix, and expresses equations, captions and per-section page numbering through the document format itself instead of manual adjustments. Repeated builds from the same input produce the same layout."
+      ],
+      "keywords": ["document automation", "structured data", "OOXML", "typesetting"]
+    }
+  },
+  "toc": {
+    "enabled": true,
+    "title": "目    录",
+    "depth": 3
+  },
+  "body": [
+    {"type": "heading", "level": 1, "text": "绪论"},
+    {"type": "paragraph", "text": "论文排版的质量取决于字体、字号、行距、编号与分节页码等一组确定性的规则[1]。当这些规则由程序表达时，同一份数据可以稳定地产生同一份文档。"},
+    {"type": "heading", "level": 2, "text": "研究背景"},
+    {"type": "paragraph", "text": "课程论文通常需要满足模板的格式要求，例如一级标题使用黑体小二、正文使用宋体小四并首行缩进。手工设置容易遗漏，且难以在不同机器之间复现。"},
+    {"type": "heading", "level": 3, "text": "问题的提出"},
+    {"type": "paragraph", "text": "若把版式规则编码为样式与分节属性，正文内容只描述结构，格式便不再依赖具体编辑器。公式使用标准公式对象，引用角标使用上标，目录使用域并在打开时更新。"},
+    {"type": "heading", "level": 4, "text": "排版一致性"},
+    {"type": "paragraph", "text": "一致性要求同一层级的标题、图表标题与表内文字在全文保持相同的字体与字号。程序通过样式集中定义这些属性，避免逐段覆盖。"},
+    {"type": "heading", "level": 4, "text": "工具链现状"},
+    {"type": "paragraph", "text": "现有工具多以模板替换为主，遇到分节页码、三线表与公式编号时需要额外处理。本文把这三类元素作为一等公民，在生成阶段直接写入 OOXML。"},
+    {"type": "heading", "level": 2, "text": "研究内容"},
+    {"type": "paragraph", "text": "研究内容包括输入格式定义、文档对象生成、公式转换与封面复制四个部分，分别对应程序中的模型、构建器、公式模块与封面模块。"},
+    {"type": "equation", "latex": "\\log\\frac{\\pi_i}{1-\\pi_i} = \\beta_0 + \\beta_1 x_i + \\varepsilon_i, \\quad \\varepsilon_i \\sim \\mathcal{N}(0, \\sigma^2)", "tag": "1-1"},
+    {"type": "paragraph", "text": "式（1-1）给出一个带编号的公式示例，其中 $\\pi_i$ 为比例响应，$x_i$ 为解释变量。"},
+    {"type": "figure", "src": "../assets/demo.png", "caption": "图1-1  各阶段样本量对比"},
+    {"type": "paragraph", "text": "图 1-1 由构建脚本生成，用于验证图片宽度自动限制与居中排列。"},
+    {"type": "heading", "level": 1, "text": "方法"},
+    {"type": "heading", "level": 2, "text": "输入结构"},
+    {"type": "paragraph", "text": "输入为一个 JSON 对象，包含元信息、封面、摘要、目录、正文、参考文献与附录。正文由块组成，块类型包括标题、段落、图片、表格、公式、列表与代码。"},
+    {"type": "table", "caption": "表2-1  块类型与用途", "header": [["块类型", "用途"]], "rows": [["heading", "标题，自动编号"], ["paragraph", "正文段落，支持行内公式与角标"], ["equation", "带编号的行间公式"], ["figure", "居中插图与图题"]], "note": "注：表格使用三线表，表宽与版心对齐。"},
+    {"type": "heading", "level": 2, "text": "生成流程"},
+    {"type": "list", "ordered": true, "items": ["读取并校验 JSON，补齐默认值。", "按层级编号标题、图题与表题。", "写入样式、分节与页眉页脚。", "更新目录域并导出预览。"]},
+    {"type": "paragraph", "text": "上述流程每一步只依赖上一步的产物，因此可以在任意阶段检查中间结果。"}
+  ],
+  "references": {
+    "items": [
+      "ISO/IEC 29500-1:2016. Information technology — Document description and processing languages — Office Open XML File Formats[S]. Geneva: ISO, 2016.",
+      "Adobe Systems Incorporated. PDF Reference, sixth edition[M]. San Jose: Adobe Press, 2006."
+    ]
+  },
+  "appendix": {
+    "blocks": [
+      {"type": "heading", "level": 2, "text": "构建命令"},
+      {"type": "code", "language": "bash", "text": "papermaker build examples/paper.json -o out/paper.docx\npapermaker finalize out/paper.docx --pdf out/paper.pdf"},
+      {"type": "heading", "level": 3, "text": "参数说明"},
+      {"type": "paragraph", "text": "--refresh 控制是否调用本机办公软件更新目录页码，取值为 auto、always 或 never。"}
+    ]
+  }
+}
